@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@alshdavid/shared-worker": "github:alshdavid/shared-worker",
+    "@alshdavid/sqlite-web": "github:alshdavid/web-sqlite",
     "preact": "^10.27.2"
   },
   "devDependencies": {

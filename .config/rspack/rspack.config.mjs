@@ -13,18 +13,34 @@ export default defineConfig({
     css: true,
     outputModule: true,
   },
+  performance: {
+    maxAssetSize: 10000000,
+    maxEntrypointSize: 10000000,
+  },
   entry: {
     index: "./src/gui/index.tsx",
     worker: "./src/worker/main.ts",
   },
   output: {
-    filename: "[name].[contenthash].js",
+    filename: "[name].js",
     path: path.join(root, "dist"),
     module: true,
     chunkFormat: "module",
     chunkLoading: "import",
     workerChunkLoading: "import",
+    ...(process.env.PUBLIC_PATH ? { publicPath: process.env.PUBLIC_PATH } : {}),
   },
+  externals: [
+    function({ context: _context, request }, callback) {
+      if (request.startsWith('/assets/')) {
+        return callback(null, request)
+      }
+      callback()
+    },
+    // {
+    //   "/assets/wa-sqlite/wa-sqlite-async.mjs": "/assets/wa-sqlite/wa-sqlite-async.mjs",
+    // }
+],
   resolve: {
     extensions: ["...", ".ts", ".tsx", ".jsx"],
     extensionAlias: {
@@ -41,6 +57,7 @@ export default defineConfig({
     rules: [
       {
         test: /\.jsx?$/,
+        exclude: [/node_modules/],
         use: {
           loader: "builtin:swc-loader",
           options: {
@@ -91,7 +108,10 @@ export default defineConfig({
       filename: "index.html",
       template: "src/gui/index.html",
       inject: "head",
-      baseHref: process.env.BASE_HREF,
+      baseHref: process.env.PUBLIC_PATH,
+    }),
+    new rspack.CopyRspackPlugin({
+      patterns: [{ from: 'src/assets', to: 'assets' }],
     }),
     new rspack.CssExtractRspackPlugin({}),
   ],

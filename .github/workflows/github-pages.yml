@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BASE_HREF: /website-template/
+  PUBLIC_PATH: /pennybook-client
 
 jobs:
   deploy:
