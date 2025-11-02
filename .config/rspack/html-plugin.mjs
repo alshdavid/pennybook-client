@@ -15,7 +15,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
           // Add type="module" to script tags
           data.assetTags.scripts = data.assetTags.scripts.map((asset) => {
             asset.attributes.type = "module";
-            asset.attributes.src = compiler.options.output.publicPath === 'auto' ? `/${asset.attributes.src}` : `${compiler.options.output.publicPath}/${asset.attributes.src}`
+            asset.attributes.src = asset.attributes.src
 
             return asset;
           });
@@ -31,7 +31,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
             return {
               attributes: {
                 rel: "stylesheet",
-                href: compiler.options.output.publicPath === 'auto' ? `/${asset.attributes.href}` : `${compiler.options.output.publicPath}/${asset.attributes.href}`,
+                href: asset.attributes.href,
                 media: "print",
                 onload: "this.media = 'all'",
               },

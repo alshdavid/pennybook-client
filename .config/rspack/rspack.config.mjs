@@ -7,7 +7,7 @@ import { HtmlPlugin } from "./html-plugin.mjs";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const root = path.dirname(path.dirname(dirname));
-
+console.log(process.env.PUBLIC_PATH)
 export default defineConfig({
   experiments: {
     css: true,
