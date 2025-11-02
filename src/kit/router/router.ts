@@ -45,9 +45,13 @@ export class Router {
   }
 
   navigate(path: string) {
+    console.log('navigate1', { path })
+
     if (this.#baseHref) {
       path = path.replace(this.#baseHref, '')
     }
+    console.log('navigate2', { path })
+
     const normalizedPathname = normalizePathname(path);
     window.history.pushState(null, document.title, normalizedPathname);
     this.#digest()
@@ -77,6 +81,7 @@ export class Router {
     if (this.#baseHref) {
       normalizedPath = normalizedPath.replace(this.#baseHref, '')
     }
+    console.log('digest', { normalizedPath })
     const [handler, params] = this.#matchRoute(normalizedPath)
     if (!handler) {
       return
