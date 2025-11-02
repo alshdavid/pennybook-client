@@ -78,10 +78,12 @@ export class Router {
 
   #digest() {
     let normalizedPath = normalizePathname(globalThis.location.pathname)
+    console.log('digest1', { normalizedPath })
+
     if (this.#baseHref) {
       normalizedPath = normalizedPath.replace(this.#baseHref, '')
     }
-    console.log('digest', { normalizedPath })
+    console.log('digest2', { normalizedPath })
     const [handler, params] = this.#matchRoute(normalizedPath)
     if (!handler) {
       return
