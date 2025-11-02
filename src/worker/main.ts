@@ -1,5 +1,5 @@
 // @ts-expect-error
-import { SQLite, IndexedDbFS } from "@alshdavid/sqlite-web";
+import { SQLite, IndexedDbFS, MemoryFS } from "@alshdavid/sqlite-web";
 import { ConnectionManager } from "@alshdavid/shared-worker/connection-manager.ts";
 
 const app = new ConnectionManager();
@@ -41,7 +41,7 @@ let db: any;
 async function exec(sql: string): Promise<Array<any>> {
   if (!sqlite) {
     sqlite = await SQLite.initialize({
-      fs: IndexedDbFS,
+      fs: MemoryFS,
     });
 
     db = await sqlite.open("test");
@@ -49,17 +49,3 @@ async function exec(sql: string): Promise<Array<any>> {
 
   return db.exec(sql);
 }
-
-// async function main() {
-//   const sqlite = await createSqlite()
-
-//   const db = await sqlite.open('test')
-
-//   await db.exec(`CREATE TABLE IF NOT EXISTS test_table ("id" TEXT UNIQUE, "val" TEXT)`);
-
-//   // await db.exec("INSERT INTO test_table (id, val) VALUES ('1', 'v1')")
-//   // await db.exec("INSERT INTO test_table (id, val) VALUES ('2', 'v2')")
-//   // await db.exec("INSERT INTO test_table (id, val) VALUES ('3', 'v3')")
-
-//   const result = await db.exec("SELECT * FROM test_table")
-//   console.log(result)

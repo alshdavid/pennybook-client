@@ -15,6 +15,8 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
           // Add type="module" to script tags
           data.assetTags.scripts = data.assetTags.scripts.map((asset) => {
             asset.attributes.type = "module";
+            asset.attributes.src = compiler.options.output.publicPath === 'auto' ? `/${asset.attributes.src}` : `${compiler.options.output.publicPath}/${asset.attributes.src}`
+
             return asset;
           });
 
@@ -29,7 +31,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
             return {
               attributes: {
                 rel: "stylesheet",
-                href: asset.attributes.href,
+                href: compiler.options.output.publicPath === 'auto' ? `/${asset.attributes.href}` : `${compiler.options.output.publicPath}/${asset.attributes.href}`,
                 media: "print",
                 onload: "this.media = 'all'",
               },
@@ -52,7 +54,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
           for (const [entry, assets] of Object.entries(
             stat.assetsByChunkName,
           )) {
-            importMap.imports[entry] = `${compiler.options.output.publicPath === 'auto' ? '.' : compiler.options.output.publicPath}/${assets[0]}`;
+            importMap.imports[entry] = `${compiler.options.output.publicPath === 'auto' ? '' : compiler.options.output.publicPath}/${assets[0]}`;
           }
 
           // Rspack shims `import.meta.resolve()` so this is a work around
@@ -82,7 +84,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
             data.assetTags.scripts.unshift({
               tagName: "base",
               attributes: {
-                href: this.options.baseHref,
+                href: this.options.baseHref || '/',
               },
               voidTag: true,
               meta: {},
