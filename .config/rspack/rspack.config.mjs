@@ -114,6 +114,9 @@ export default defineConfig({
       patterns: [{ from: 'src/assets', to: 'assets' }],
     }),
     new rspack.CssExtractRspackPlugin({}),
+    new rspack.DefinePlugin({
+      PUBLIC_PATH: JSON.stringify(process.env.PUBLIC_PATH)
+    })
   ],
   devServer: {
     hot: false,

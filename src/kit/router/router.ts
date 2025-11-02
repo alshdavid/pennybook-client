@@ -7,12 +7,18 @@ export type Req = {
   params: Record<string, string>
 }
 
+export type RouterOptions = {
+  baseHref?: string
+}
+
 export class Router {
   #routes: Map<string, HandlerFunc>
   #req: Req | undefined
+  #baseHref?: string
 
-  constructor() {
+  constructor({ baseHref }: RouterOptions = {}) {
     this.#routes = new Map()
+    this.#baseHref = baseHref
   }
 
   start() {
@@ -30,18 +36,27 @@ export class Router {
   // route(paths: string[], handler: HandlerFunc): Router
   // route(path: string, handler: HandlerFunc<T>): Router
   route(path: string, handler: HandlerFunc): Router {
+    if (this.#baseHref) {
+      path = path.replace(this.#baseHref, '')
+    }
     const normalizedPath = normalizePathname(path)
     this.#routes.set(normalizedPath, handler)
     return this
   }
 
   navigate(path: string) {
+    if (this.#baseHref) {
+      path = path.replace(this.#baseHref, '')
+    }
     const normalizedPathname = normalizePathname(path);
     window.history.pushState(null, document.title, normalizedPathname);
     this.#digest()
   }
 
   replace(path: string) {
+    if (this.#baseHref) {
+      path = path.replace(this.#baseHref, '')
+    }
     const normalizedPathname = normalizePathname(path);
     window.history.replaceState(null, document.title, normalizedPathname);
     this.#digest()

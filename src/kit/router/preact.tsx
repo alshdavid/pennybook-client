@@ -1,8 +1,8 @@
 import { cloneElement, ComponentChild, h, render, type VNode } from "preact";
-import { Req, Router } from "./router.ts";
+import { Req, Router, RouterOptions } from "./router.ts";
 import { useEffect, useState } from "preact/hooks";
 
-export type PreactRouterOptions = {
+export type PreactRouterOptions = RouterOptions & {
   target: HTMLElement;
   providers?: Array<VNode>;
 };
@@ -11,8 +11,8 @@ export class PreactRouter extends Router {
   #target: HTMLElement;
   #providers: Array<VNode>;
 
-  constructor({ target, providers = [] }: PreactRouterOptions) {
-    super();
+  constructor({ target, providers = [], ...routerOptions }: PreactRouterOptions) {
+    super(routerOptions);
     this.#target = target;
     this.#providers = providers;
   }

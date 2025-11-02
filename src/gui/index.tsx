@@ -23,6 +23,7 @@ provider.set(Accounts, accounts)
 console.log(await accounts.getAccounts())
 
 const app = new PreactRouter({
+  baseHref: PUBLIC_PATH,
   target: document.body,
   providers: [<InjectContext.Provider value={provider}/>],
 })
