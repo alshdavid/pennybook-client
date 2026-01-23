@@ -12,8 +12,6 @@
   border-color: $color-grey-800;
   border-style: solid;
   border-width: 0px;
-  padding-left: $spacing-04;
-  padding-right: $spacing-04;
   border-right-width: 1px;
 
   h2 {
@@ -29,6 +27,7 @@
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid $color-grey-700;
+    padding: 0 $spacing-04;
 
     .logo {
       display: flex;
@@ -68,5 +67,54 @@
   & > .component-bubble {
     padding: $spacing-06 $spacing-04;
     margin-bottom: $spacing-04;
+  }
+
+  & > section {
+    border-bottom: 1px solid $color-grey-700;
+
+    &:last-child {
+      border: none;
+    }
+
+    & > div {
+      cursor: pointer;
+      font-size: 14px;
+      transition:
+        opacity 150ms ease-in-out,
+        background-color 150ms ease-in-out;
+
+      &:hover {
+        background-color: $color-grey-700;
+      }
+
+      &:active {
+        opacity: 0.8;
+        transition:
+          opacity 0ms ease-in-out,
+          background-color 0ms ease-in-out;
+      }
+
+      &.active {
+        background-color: $color-grey-800;
+      }
+
+      &.account {
+        display: flex;
+        justify-content: space-between;
+        padding: $spacing-01 $spacing-04;
+
+        &.heading {
+          padding: $spacing-03 $spacing-04;
+          margin-bottom: $spacing-03;
+        }
+      }
+
+      &.large {
+        padding: $spacing-03 $spacing-04;
+
+        font-size: 16px;
+        font-weight: 400;
+      }
+    }
   }
 }
