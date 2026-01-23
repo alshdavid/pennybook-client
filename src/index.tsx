@@ -4,47 +4,18 @@ import { Icon } from "./components/icon/icon.tsx";
 import { Button } from "./components/button/button.tsx";
 import { Bubble } from "./components/bubble/bubble.tsx";
 import { useViewModel } from "./platform/rx/use-view-model.ts";
+import { PreactRouter } from "./platform/router/preact.tsx";
+import { AUTO_BASE_HREF } from "./platform/router/router.ts";
+import { HomePage } from "./pages/home/home-page.tsx";
+import { NotFoundPage } from "./pages/not-found/home-page.tsx";
 
-export class AppViewModel extends EventTarget {
-  constructor() {
-    super();
-  }
+const app = new PreactRouter({
+  root: document.body,
+  baseHref: AUTO_BASE_HREF,
+  providers: []
+})
 
-  toggleMenuLeft() {
-    document.body.classList.toggle("open");
-  }
-}
+app.mount(['/', '/index.html'], () => <HomePage />)
+app.mount('/**', () => <NotFoundPage />)
 
-function App() {
-  const vm = useViewModel(AppViewModel, []);
-
-  return (
-    <Fragment>
-      <SideMenu />
-
-      <main className="main-contents">
-        <div className="floating-panel top-left">
-          <Icon icon="brand-hollow" height="24px" />
-          <Bubble>
-            <Button onClick={vm.toggleMenuLeft} className="menu-button">
-              <Icon icon="side-bar" height="15px" />
-            </Button>
-          </Bubble>
-        </div>
-      </main>
-    </Fragment>
-  );
-}
-
-render(<App />, document.body);
-
-function SideMenu() {
-  return <nav className="side-bar side-bar-left">
-    <div className="top-bar">
-      <div className="logo">
-        <Icon icon="brand-hollow" />
-        <span>pennybook</span>
-      </div>
-    </div>
-  </nav>
-}
+app.start()

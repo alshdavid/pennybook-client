@@ -1,0 +1,12 @@
+@use "../../css/variables.scss" as *;
+@use "../../css/mixins.scss" as *;
+
+.section-page-body {
+  background-color: $color-grey-1000;
+  padding: $spacing-04;
+  height: 100dvh;
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: $side-bar-width;
+}

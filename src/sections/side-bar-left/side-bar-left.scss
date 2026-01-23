@@ -1,0 +1,72 @@
+@use "../../css/variables.scss" as *;
+@use "../../css/mixins.scss" as *;
+
+.side-bar-left {
+  z-index: 11;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100dvh;
+  width: $side-bar-width;
+  background-color: $color-grey-850;
+  border-color: $color-grey-800;
+  border-style: solid;
+  border-width: 0px;
+  padding-left: $spacing-04;
+  padding-right: $spacing-04;
+  border-right-width: 1px;
+
+  h2 {
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: $spacing-02;
+    color: $color-grey-500;
+  }
+
+  .top-bar {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid $color-grey-700;
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .component-icon {
+        display: block;
+        height: 23px;
+      }
+
+      span {
+        margin-left: $spacing-02;
+        line-height: 0;
+        display: block;
+        font-size: 23px;
+        font-weight: 500;
+        color: $color-brand;
+        position: relative;
+        bottom: 2px;
+      }
+    }
+
+    & > div {
+      display: flex;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 500;
+      margin: 0;
+      color: $color-blue-600;
+    }
+  }
+
+  & > .component-bubble {
+    padding: $spacing-06 $spacing-04;
+    margin-bottom: $spacing-04;
+  }
+}
