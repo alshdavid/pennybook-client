@@ -15,9 +15,6 @@ concurrency:
   group: "main"
   cancel-in-progress: true
 
-env:
-  PUBLIC_PATH: /pennybook-client
-
 jobs:
   deploy:
     environment:

@@ -2,10 +2,16 @@ import path from "node:path";
 import fs from "node:fs";
 import prettier from "prettier";
 import HtmlWebpackPlugin from "html-webpack-plugin";
-import { Compiler } from "@rspack/core";
 
 export class HtmlPlugin extends HtmlWebpackPlugin {
-  apply(/** @type {Compiler} */compiler) {
+  #spaFallback;
+
+  constructor(options) {
+    super(options);
+    this.#spaFallback = options.spaFallback;
+  }
+
+  apply(compiler) {
     super.apply(compiler);
 
     compiler.hooks.compilation.tap("ScriptAttributeInjector", (compilation) => {
@@ -15,8 +21,6 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
           // Add type="module" to script tags
           data.assetTags.scripts = data.assetTags.scripts.map((asset) => {
             asset.attributes.type = "module";
-            asset.attributes.src = asset.attributes.src
-
             return asset;
           });
 
@@ -54,7 +58,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
           for (const [entry, assets] of Object.entries(
             stat.assetsByChunkName,
           )) {
-            importMap.imports[entry] = `${compiler.options.output.publicPath === 'auto' ? '' : compiler.options.output.publicPath}/${assets[0]}`;
+            importMap.imports[entry] = `./${assets[0]}`;
           }
 
           // Rspack shims `import.meta.resolve()` so this is a work around
@@ -64,7 +68,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
             },
             tagName: "script",
             innerHTML:
-              `globalThis.importMap = { resolve: (...args) => import.meta.resolve(...args) }`,
+              "globalThis.importMap = { resolve: (...args) => import.meta.resolve(...args) }",
             voidTag: false,
             meta: {},
           });
@@ -84,7 +88,7 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
             data.assetTags.scripts.unshift({
               tagName: "base",
               attributes: {
-                href: this.options.baseHref || '/',
+                href: this.options.baseHref,
               },
               voidTag: true,
               meta: {},
@@ -106,6 +110,13 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
         parser: "html",
       });
       await fs.promises.writeFile(asset, formatted, "utf8");
+      if (this.#spaFallback) {
+        await fs.promises.writeFile(
+          path.join(compiler.options.output.path, this.#spaFallback),
+          formatted,
+          "utf8",
+        );
+      }
       callback();
     });
   }

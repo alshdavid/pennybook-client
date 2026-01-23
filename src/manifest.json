@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "PennyBook",
+  "short_name": "PennyBook",
+  "description": "Wealth management for humans",
+  "version": "0.1.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#111111",
+  "background_color": "#111111",
+  "scope": "/",
+  "tab_strip": {
+    "home_tab": {
+      "scope_patterns": [{ "pathname": "/index.html" }, { "pathname": "/" }]
+    },
+    "new_tab_button": {
+      "url": "/new-tab-page"
+    }
+  },
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "264x264"
+    }
+  ]
+}

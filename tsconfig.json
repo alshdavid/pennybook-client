@@ -1,16 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "lib": ["DOM", "ESNext"],
-    "strict": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "jsx": "react",
-    "jsxFactory": "h",
-    "types": [
-      "./.config/typings/import-map.d.ts"
-    ]
-  }
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.test.json" }
+  ]
 }

@@ -1,0 +1,146 @@
+@use "./variables.scss" as *;
+@use "./mixins.scss" as *;
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a {
+  margin: 0;
+  padding: 0;
+
+  &:last-child {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 32px;
+  margin-bottom: $spacing-07;
+
+  @include desktop() {
+    font-size: 30px;
+    line-height: 34px;
+    margin-bottom: $spacing-11;
+  }
+}
+
+h2 {
+  font-size: 26px;
+  line-height: 30px;
+  margin-bottom: $spacing-06;
+
+  @include desktop() {
+    font-size: 28px;
+    line-height: 32px;
+  }
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 28px;
+  margin-bottom: $spacing-08;
+
+  @include desktop() {
+    font-size: 26px;
+    line-height: 30px;
+    margin-bottom: $spacing-10;
+  }
+}
+
+h4 {
+  font-size: 22px;
+  line-height: 26px;
+  margin-bottom: $spacing-07;
+
+  @include desktop() {
+    font-size: 24px;
+    line-height: 28px;
+    margin-bottom: $spacing-09;
+  }
+}
+
+h5 {
+  font-size: 20px;
+  line-height: 22px;
+  margin-bottom: $spacing-06;
+
+  @include desktop() {
+    font-size: 22px;
+    line-height: 26px;
+    margin-bottom: $spacing-08;
+  }
+}
+
+h6 {
+  font-size: 18px;
+  line-height: 20px;
+  margin-bottom: $spacing-05;
+
+  @include desktop() {
+    font-size: 20px;
+    line-height: 24px;
+    margin-bottom: $spacing-07;
+  }
+}
+
+a {
+  color: $color-blue-900;
+  text-decoration: underline;
+}
+
+p,
+a,
+label,
+li {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 400;
+  margin-bottom: $spacing-05;
+
+  @include desktop() {
+    font-size: 16px;
+    line-height: 22px;
+    margin-bottom: $spacing-07;
+  }
+}
+
+label {
+  display: block;
+}
+
+em {
+  font-size: inherit;
+  font-weight: 600;
+}
+
+ul {
+  padding-left: $spacing-03;
+}
+
+li {
+  position: relative;
+  display: block;
+  padding-left: $spacing-03;
+}
+
+li:after {
+  content: "\2022";
+  position: absolute;
+  top: 0;
+  left: 0;
+}

@@ -1,0 +1,44 @@
+@use "../../css/variables.scss" as *;
+
+.component-button {
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+
+  &.basic,
+  &.green,
+  &.red,
+  &.blue {
+    display: block;
+    width: 100%;
+    border-radius: 18px;
+    padding: $spacing-02 $spacing-04;
+
+    &[disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: default;
+    }
+  }
+
+  &.basic {
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+  &.red {
+    color: var(--color-text);
+    background-color: $color-red-600;
+  }
+
+  &.green {
+    color: var(--color-text);
+    background-color: $color-green-600;
+  }
+
+  &.blue {
+    color: var(--color-text);
+    background-color: $color-blue-600;
+  }
+}

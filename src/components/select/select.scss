@@ -1,0 +1,7 @@
+@use "../../css/variables.scss" as *;
+
+.component-select {
+  width: 100%;
+  padding: $spacing-02 $spacing-02;
+  border: none;
+}

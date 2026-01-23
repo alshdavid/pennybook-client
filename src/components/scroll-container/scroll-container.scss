@@ -1,0 +1,15 @@
+.component-scroll-container {
+  transform: rotateX(180deg);
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  height: 100%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & > * {
+    transform: rotateX(180deg);
+  }
+}

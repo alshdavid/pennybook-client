@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ESNext"],
+    "strict": true,
+    "noEmit": true,
+    "experimentalDecorators": false,
+    "useDefineForClassFields": true,
+    "allowImportingTsExtensions": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.test.ts"
+  ]
+}

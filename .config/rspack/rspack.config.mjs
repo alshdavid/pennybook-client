@@ -5,42 +5,30 @@ import { rspack } from "@rspack/core";
 import { DeleteDirectoryPlugin } from "./delete-directory-plugin.mjs";
 import { HtmlPlugin } from "./html-plugin.mjs";
 
+const baseHref = process.env.BASE_HREF || "/";
+console.log("BUILDING WITH BASE_HREF OF", baseHref);
+
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const root = path.dirname(path.dirname(dirname));
-console.log(process.env.PUBLIC_PATH)
+
 export default defineConfig({
   experiments: {
     css: true,
     outputModule: true,
   },
-  performance: {
-    maxAssetSize: 10000000,
-    maxEntrypointSize: 10000000,
-  },
   entry: {
-    index: "./src/gui/index.tsx",
-    worker: "./src/worker/main.ts",
+    index: "./src/index.tsx",
   },
   output: {
-    filename: "[name].js",
+    filename: "[name].[contenthash].js",
     path: path.join(root, "dist"),
+    publicPath: baseHref,
     module: true,
     chunkFormat: "module",
     chunkLoading: "import",
     workerChunkLoading: "import",
-    ...(process.env.PUBLIC_PATH ? { publicPath: process.env.PUBLIC_PATH } : {}),
   },
-  externals: [
-    function({ context: _context, request }, callback) {
-      if (request.startsWith('/assets/')) {
-        return callback(null, request)
-      }
-      callback()
-    },
-    // {
-    //   "/assets/wa-sqlite/wa-sqlite-async.mjs": "/assets/wa-sqlite/wa-sqlite-async.mjs",
-    // }
-],
+  source: {},
   resolve: {
     extensions: ["...", ".ts", ".tsx", ".jsx"],
     extensionAlias: {
@@ -57,7 +45,6 @@ export default defineConfig({
     rules: [
       {
         test: /\.jsx?$/,
-        exclude: [/node_modules/],
         use: {
           loader: "builtin:swc-loader",
           options: {
@@ -80,12 +67,15 @@ export default defineConfig({
               parser: {
                 syntax: "typescript",
                 tsx: true,
+                decorators: true,
               },
               transform: {
                 react: {
                   pragma: "h",
                   pragmaFrag: "Fragment",
                 },
+                decoratorVersion: "2022-03",
+                decoratorMetadata: true,
               },
             },
           },
@@ -93,9 +83,28 @@ export default defineConfig({
         type: "javascript/auto",
       },
       {
+        resourceQuery: /type=raw/i,
+        type: "asset/source",
+      },
+      {
         test: /\.css$/i,
+        resourceQuery: { not: [/raw/] },
         use: [rspack.CssExtractRspackPlugin.loader, "css-loader"],
         type: "javascript/auto",
+      },
+      {
+        test: /\.scss$/i,
+        resourceQuery: { not: [/raw/] },
+        use: [
+          {
+            loader: "sass-loader",
+            options: {
+              api: "modern-compiler", // Faster performance
+            },
+          },
+        ],
+        // Rspack handles extraction and URL resolving automatically
+        type: "css",
       },
     ],
   },
@@ -103,20 +112,30 @@ export default defineConfig({
     new DeleteDirectoryPlugin({
       directory: path.join(root, "dist"),
     }),
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        {
+          from: "src/manifest.json",
+          to: "manifest.json",
+        },
+        {
+          from: "src/favicon.svg",
+          to: "favicon.svg",
+        },
+      ],
+    }),
     new HtmlPlugin({
       minify: false,
       filename: "index.html",
-      template: "src/gui/index.html",
+      spaFallback: "404.html",
+      template: "src/index.html",
       inject: "head",
-      baseHref: process.env.PUBLIC_PATH,
+      baseHref,
     }),
-    new rspack.CopyRspackPlugin({
-      patterns: [{ from: 'src/assets', to: 'assets' }],
+    new rspack.DefinePlugin({
+      BASE_HREF: JSON.stringify(baseHref),
     }),
     new rspack.CssExtractRspackPlugin({}),
-    new rspack.DefinePlugin({
-      PUBLIC_PATH: JSON.stringify(process.env.PUBLIC_PATH)
-    })
   ],
   devServer: {
     hot: false,
