@@ -7,9 +7,6 @@
   "start_url": "/",
   "display": "standalone",
   "display_override": ["tabbed", "minimal-ui"],
-  "launch_handler": {
-    "client_mode": "navigate-new"
-  },
   "orientation": "portrait",
   "theme_color": "#111111",
   "background_color": "#111111",
@@ -19,7 +16,7 @@
       "scope_patterns": [{ "pathname": "/index.html" }, { "pathname": "/" }]
     },
     "new_tab_button": {
-      "url": "/new-tab-page"
+      "url": "/"
     }
   },
   "icons": [

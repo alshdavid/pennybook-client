@@ -11,7 +11,7 @@ export function SideBarLeft() {
       href: route,
       onClick: (e: MouseEvent) => {
         e.preventDefault();
-        router.navigate("/accounts");
+        router.navigate(route);
       },
     };
   }
