@@ -76,7 +76,11 @@
       border: none;
     }
 
-    & > div {
+    & > a, &>div {
+      margin: 0;
+      display: block;
+      text-decoration: none;
+      color: var(--color-text);
       cursor: pointer;
       font-size: 14px;
       transition:
