@@ -13,6 +13,7 @@
     "watch": "npx rspack --watch --config ./.config/rspack/rspack.config.mjs"
   },
   "dependencies": {
+    "decimal.js": "^10.6.0",
     "preact": "^10.27.2"
   },
   "devDependencies": {
