@@ -15,10 +15,36 @@ export class DataSourceMemory implements IDataSource {
   };
 
   constructor() {
-    this.#state = {
-      accounts: {},
-      transactions: {},
-    };
+    this.#state = JSON.parse(
+      globalThis.localStorage.getItem("pennybook::data") ||
+        JSON.stringify({
+          accounts: {},
+          transactions: {},
+        }),
+    );
+    for (const key in this.#state.accounts) {
+      this.#state.accounts[key].balance = new Decimal(
+        this.#state.accounts[key].balance,
+      );
+    }
+    for (const key in this.#state.transactions) {
+      if (
+        this.#state.transactions[key].credit !== null &&
+        this.#state.transactions[key].credit !== undefined
+      ) {
+        this.#state.transactions[key].credit = new Decimal(
+          this.#state.transactions[key].credit,
+        );
+      }
+      if (
+        this.#state.transactions[key].debit !== null &&
+        this.#state.transactions[key].debit !== undefined
+      ) {
+        this.#state.transactions[key].debit = new Decimal(
+          this.#state.transactions[key].debit,
+        );
+      }
+    }
   }
 
   async *getTransactions(
@@ -26,6 +52,13 @@ export class DataSourceMemory implements IDataSource {
   ): AsyncIterableIterator<Array<TransactionDetail>> {
     yield Object.values(this.#state.transactions).filter(
       (t) => t.accountId === accountId,
+    );
+  }
+
+  #sync() {
+    globalThis.localStorage.setItem(
+      "pennybook::data",
+      JSON.stringify(this.#state),
     );
   }
 
@@ -50,6 +83,7 @@ export class DataSourceMemory implements IDataSource {
       balance: new Decimal(0),
     };
     this.#state.accounts[accountId] = account;
+    this.#sync();
     return accountId;
   }
 
@@ -68,6 +102,7 @@ export class DataSourceMemory implements IDataSource {
 
     transactionsToDelete.forEach((id) => delete this.#state.transactions[id]);
     delete this.#state.accounts[accountId];
+    this.#sync();
   }
 
   async closeAccount(accountId: AccountId): Promise<void> {
@@ -76,10 +111,11 @@ export class DataSourceMemory implements IDataSource {
       throw new Error(`Account ${accountId} not found`);
     }
     account.open = false;
+    this.#sync();
   }
 
   async addTransactions(
-    ...transactions: Array<Omit<TransactionDetail, "transactionId">>
+    ...transactions: Array<TransactionDetail>
   ): Promise<Array<TransactionId>> {
     const transactionIds: TransactionId[] = [];
     for (const transaction of transactions) {
@@ -100,6 +136,7 @@ export class DataSourceMemory implements IDataSource {
         transaction.accountId,
       );
     }
+    this.#sync();
     return transactionIds;
   }
 
@@ -117,6 +154,7 @@ export class DataSourceMemory implements IDataSource {
       accountId: transaction.accountId,
     };
 
+    this.#sync();
     return [transactionId];
   }
 
@@ -129,6 +167,7 @@ export class DataSourceMemory implements IDataSource {
       }
       delete this.#state.transactions[transactionId];
     }
+    this.#sync();
   }
 }
 

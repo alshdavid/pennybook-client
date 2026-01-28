@@ -57,3 +57,66 @@ app.start();
 globalThis.ds = dataSourceService;
 // @ts-expect-error
 globalThis.Decimal = Decimal;
+
+void (async function () {
+  // Demo Data
+  const accWiseUS = await dataSourceMemory.createAccount({
+    currencyCode: "USD",
+    name: "Wise US",
+  });
+
+  const accCbaGeneral = await dataSourceMemory.createAccount({
+    currencyCode: "AUD",
+    name: "CBA General",
+  });
+
+  const accCbaSavings = await dataSourceMemory.createAccount({
+    currencyCode: "AUD",
+    name: "CBA Savings",
+  });
+
+  await dataSourceMemory.addTransactions(
+    {
+      accountId: accWiseUS,
+      date: new Date().toISOString(),
+      notes: "",
+      category: "",
+      credit: new Decimal("10"),
+      debit: null,
+    },
+    {
+      accountId: accWiseUS,
+      date: new Date().toISOString(),
+      notes: "",
+      category: "",
+      credit: new Decimal("10"),
+      debit: null,
+    },
+
+    {
+      accountId: accCbaGeneral,
+      date: new Date().toISOString(),
+      notes: "",
+      category: "",
+      credit: new Decimal("50"),
+      debit: null,
+    },
+    {
+      accountId: accCbaGeneral,
+      date: new Date().toISOString(),
+      notes: "",
+      category: "",
+      credit: new Decimal("50"),
+      debit: null,
+    },
+
+    {
+      accountId: accCbaSavings,
+      date: new Date().toISOString(),
+      notes: "",
+      category: "",
+      credit: new Decimal("100"),
+      debit: null,
+    },
+  );
+})();
