@@ -1,8 +1,8 @@
-export class FormField<T> extends EventTarget {
-  #value: T;
+import { BehaviorSubject } from "../rxjs/index.ts";
 
+export class FormField<T> extends BehaviorSubject<T> {
   get value(): T {
-    return this.#value;
+    return this.getValue();
   }
 
   set value(update: T) {
@@ -10,7 +10,7 @@ export class FormField<T> extends EventTarget {
   }
 
   asProps() {
-    return { onInput: this.fromEvent, value: this.#value };
+    return { onInput: this.fromEvent, value: this.getValue() };
   }
 
   fromEvent = (event: Event) => {
@@ -21,15 +21,10 @@ export class FormField<T> extends EventTarget {
   };
 
   update = (value: T) => {
-    if (this.#value === value) {
-      return;
-    }
-    this.#value = value;
-    this.dispatchEvent(new CustomEvent("change"));
+    this.next(value);
   };
 
   constructor(initialValue: T) {
-    super();
-    this.#value = initialValue;
+    super(initialValue);
   }
 }

@@ -28,12 +28,18 @@ export class DataSourceMemory implements IDataSource {
       );
     }
     for (const key in this.#state.transactions) {
-      if (this.#state.transactions[key].credit !== null && this.#state.transactions[key].credit !== undefined )  {
+      if (
+        this.#state.transactions[key].credit !== null &&
+        this.#state.transactions[key].credit !== undefined
+      ) {
         this.#state.transactions[key].credit = new Decimal(
           this.#state.transactions[key].credit,
         );
       }
-      if (this.#state.transactions[key].debit !== null && this.#state.transactions[key].debit !== undefined) {
+      if (
+        this.#state.transactions[key].debit !== null &&
+        this.#state.transactions[key].debit !== undefined
+      ) {
         this.#state.transactions[key].debit = new Decimal(
           this.#state.transactions[key].debit,
         );
@@ -41,8 +47,8 @@ export class DataSourceMemory implements IDataSource {
     }
   }
 
-  async getTransactions(): Promise<Array<TransactionDetail>> {
-    return Object.values(this.#state.transactions)
+  async *getTransactions(): AsyncIterableIterator<Array<TransactionDetail>> {
+    yield Object.values(this.#state.transactions);
   }
 
   #sync() {

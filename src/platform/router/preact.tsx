@@ -6,6 +6,7 @@ import {
   createContext,
   Component,
   ComponentType,
+  Fragment,
 } from "preact";
 import { Req, Router, RouterOptions } from "./router.ts";
 import { useContext } from "preact/hooks";
@@ -93,11 +94,7 @@ class RoutedApp extends Component<RoutedAppProps, RoutedAppState> {
   constructor(props: RoutedAppProps) {
     super(props);
     this.Wrapper = ({ target }: any) => {
-      let wrapped: VNode = (
-        <RouterContext.Provider value={this.props.router}>
-          {target}
-        </RouterContext.Provider>
-      );
+      let wrapped: VNode = <Fragment>{target}</Fragment>;
 
       for (let i = this.props.providers.length - 1; i >= 0; i--) {
         const provider = this.props.providers[i];
@@ -106,7 +103,11 @@ class RoutedApp extends Component<RoutedAppProps, RoutedAppState> {
         wrapped = <Provider {...providerProps}>{wrapped}</Provider>;
       }
 
-      return wrapped;
+      return (
+        <RouterContext.Provider value={this.props.router}>
+          {wrapped}
+        </RouterContext.Provider>
+      );
     };
   }
 

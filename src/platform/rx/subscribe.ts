@@ -1,36 +1,30 @@
-import { ON_CHANGE } from "./symbol.ts";
-
-export interface ViewModelLifecycle {
-  onInit?(): any | Promise<any>;
-  onDestroy?(): any | Promise<any>;
-}
+import { Observable, Subscription } from "../rxjs/index.ts";
+import { getOrInit, ON_CHANGE } from "./symbol.ts";
 
 export function subscribe(
-  target: EventTarget & ViewModelLifecycle,
+  target: any,
   callback: () => any | Promise<any>,
-): () => void {
-  target.addEventListener("change", callback);
-  const extras = new Set<() => any>();
+): Subscription {
+  const [subject, stash] = getOrInit(target);
+  const subscription = subject.subscribe(callback);
 
-  if ((target as Record<string | symbol, any>)[ON_CHANGE]) {
-    for (const value of Object.values(
-      (target as Record<string | symbol, any>)[ON_CHANGE],
-    ) || []) {
-      if (!(value instanceof EventTarget)) {
-        continue;
-      }
+  for (const value of Object.values(stash) || []) {
+    if (value instanceof Observable) {
+      subscription.add(value.subscribe(callback));
+      continue;
+    }
 
-      extras.add(subscribe(value, callback));
+    if (typeof value === "object" && ON_CHANGE in value) {
+      subscription.add(subscribe(value, callback));
     }
   }
 
-  target.onInit && target.onInit();
+  return subscription;
+}
 
-  return () => {
-    target.removeEventListener("change", callback);
-    for (const extra of extras.values()) {
-      extra();
-    }
-    if (target.onDestroy) target.onDestroy();
-  };
+export function asObservable(target: any): Observable<void> {
+  if (typeof target === "object" && ON_CHANGE in target) {
+    return target[ON_CHANGE][0];
+  }
+  throw new Error("Not reactive");
 }

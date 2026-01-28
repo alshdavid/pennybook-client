@@ -32,12 +32,10 @@ export type SerdeDecimal = [number, number];
 
 export interface IDataSource {
   getAccounts(): Promise<Record<string, AccountDetail>>;
-  createAccount(
-    options: CreateAccountOptions,
-  ): Promise<AccountId>;
+  createAccount(options: CreateAccountOptions): Promise<AccountId>;
   deleteAccount(accountId: AccountId): Promise<void>;
   closeAccount(accountId: AccountId): Promise<void>;
-  getTransactions(): Promise<Array<TransactionDetail>>
+  getTransactions(): AsyncIterableIterator<Array<TransactionDetail>>;
   addTransactions(
     ...transaction: Array<TransactionDetail>
   ): Promise<Array<TransactionId>>;
