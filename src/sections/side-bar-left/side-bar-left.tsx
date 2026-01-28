@@ -11,6 +11,10 @@ import { classNames } from "../../platform/preact/class-names.ts";
 import { Observable } from "../../platform/rxjs/index.ts";
 import { pipe } from "../../platform/rxjs/operators/pipe.ts";
 import { map } from "../../platform/rxjs/operators/map.ts";
+import { getCurrencySymbol } from "../../platform/currency/convert.ts";
+
+// TODO: Set in user settings
+const DEFAULT_CURRENCY = "AUD";
 
 export class SideBarLeftViewModel {
   accounts: Observable<Array<AccountDetail>>;
@@ -25,10 +29,9 @@ export class SideBarLeftViewModel {
       map((a) => Object.values(a)),
     );
 
-    this.balance = pipe(this.accounts)(
-      map((accounts) =>
-        accounts.reduce((p, c) => p.add(c.balance), new Decimal(0)),
-      ),
+    this.balance = pipe(ds)(
+      map(() => ds.estimateTotalBalance(DEFAULT_CURRENCY)),
+      map((x) => x),
     );
   }
 
@@ -90,7 +93,10 @@ export function SideBarLeft() {
           })}
         >
           <span>All Accounts</span>
-          <span>{useAsync(vm.balance, new Decimal("0")).toFixed(0)}</span>
+          <span>
+            {getCurrencySymbol(DEFAULT_CURRENCY)}
+            {useAsync(vm.balance, new Decimal("0")).toFixed(0)}
+          </span>
         </a>
 
         {useAsync(vm.accounts, [])
@@ -103,7 +109,10 @@ export function SideBarLeft() {
               })}
             >
               <span>{account.name}</span>
-              <span>{account.balance.toFixed(0)}</span>
+              <span>
+                {getCurrencySymbol(account.currencyCode)}
+                {account.balance.toFixed(0)}
+              </span>
             </a>
           ))}
 

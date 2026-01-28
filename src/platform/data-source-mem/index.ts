@@ -47,8 +47,12 @@ export class DataSourceMemory implements IDataSource {
     }
   }
 
-  async *getTransactions(): AsyncIterableIterator<Array<TransactionDetail>> {
-    yield Object.values(this.#state.transactions);
+  async *getTransactions(
+    accountId: AccountId,
+  ): AsyncIterableIterator<Array<TransactionDetail>> {
+    yield Object.values(this.#state.transactions).filter(
+      (t) => t.accountId === accountId,
+    );
   }
 
   #sync() {
@@ -60,9 +64,11 @@ export class DataSourceMemory implements IDataSource {
 
   async getAccounts(): Promise<Record<string, AccountDetail>> {
     const result: Record<string, AccountDetail> = {};
+
     Object.entries(this.#state.accounts).forEach(([id, detail]) => {
       result[id] = { ...detail };
     });
+
     return result;
   }
 
@@ -120,8 +126,15 @@ export class DataSourceMemory implements IDataSource {
       this.#state.transactions[transactionId] = {
         ...transaction,
         accountId: transaction.accountId,
+        transactionId,
       };
       transactionIds.push(transactionId);
+
+      // Inefficient
+      this.#state.accounts[transaction.accountId].balance = calculateBalance(
+        Object.values(this.#state.transactions),
+        transaction.accountId,
+      );
     }
     this.#sync();
     return transactionIds;
@@ -156,4 +169,21 @@ export class DataSourceMemory implements IDataSource {
     }
     this.#sync();
   }
+}
+
+function calculateBalance(
+  transactions: Array<TransactionDetail>,
+  accountId: AccountId,
+): Decimal {
+  return transactions
+    .filter((t) => t.accountId === accountId)
+    .reduce((balance, transaction) => {
+      if (transaction.credit !== null) {
+        return balance.plus(transaction.credit);
+      }
+      if (transaction.debit !== null) {
+        return balance.minus(transaction.debit);
+      }
+      return balance;
+    }, new Decimal(0));
 }

@@ -21,6 +21,7 @@ export type AccountDetail = {
 
 export type TransactionDetail = {
   accountId: AccountId;
+  transactionId: TransactionId;
   date: string;
   notes: string;
   category: string;
@@ -35,7 +36,9 @@ export interface IDataSource {
   createAccount(options: CreateAccountOptions): Promise<AccountId>;
   deleteAccount(accountId: AccountId): Promise<void>;
   closeAccount(accountId: AccountId): Promise<void>;
-  getTransactions(): AsyncIterableIterator<Array<TransactionDetail>>;
+  getTransactions(
+    accountId: AccountId,
+  ): AsyncIterableIterator<Array<TransactionDetail>>;
   addTransactions(
     ...transaction: Array<TransactionDetail>
   ): Promise<Array<TransactionId>>;

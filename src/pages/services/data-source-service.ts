@@ -1,3 +1,4 @@
+import { Decimal } from "decimal.js";
 import {
   AccountDetail,
   AccountId,
@@ -7,6 +8,7 @@ import {
   TransactionId,
 } from "../../platform/data-source/index.ts";
 import { BehaviorSubject } from "../../platform/rxjs/index.ts";
+import { convertCurrency } from "../../platform/currency/convert.ts";
 
 export type DataSourceServiceOptions = {
   sources: Record<string, IDataSource>;
@@ -24,9 +26,31 @@ export class DataSourceService
     this.#sources = new Map(Object.entries(options.sources));
   }
 
-  getTransactions(): AsyncIterableIterator<Array<TransactionDetail>> {
+  async estimateTotalBalance(baseCurrencyCode: string): Promise<Decimal> {
+    let result = new Decimal("0");
+
+    for (const account of Object.values(await this.getAccounts())) {
+      if (account.currencyCode !== baseCurrencyCode) {
+        result = result.add(
+          await convertCurrency(
+            account.balance.toNumber(),
+            baseCurrencyCode,
+            account.currencyCode,
+          ),
+        );
+      } else {
+        result = result.add(account.balance);
+      }
+    }
+
+    return result;
+  }
+
+  getTransactions(
+    accountId: AccountId,
+  ): AsyncIterableIterator<Array<TransactionDetail>> {
     if (!this.#source) throw new Error("Method not implemented.");
-    return this.#source.getTransactions();
+    return this.#source.getTransactions(accountId);
   }
 
   list(): Record<string, IDataSource> {

@@ -15,12 +15,13 @@ export type RouterOptions = {
   baseHref?: string | typeof AUTO_BASE_HREF;
 };
 
-export class Router {
+export class Router extends EventTarget {
   #routes: Map<string, HandlerFunc>;
   #req: Req | undefined;
   #baseHref: string;
 
   constructor({ baseHref }: RouterOptions = {}) {
+    super();
     this.#routes = new Map();
     if (baseHref === AUTO_BASE_HREF) {
       this.#baseHref =
@@ -33,6 +34,7 @@ export class Router {
   }
 
   #onPopState = () => {
+    this.dispatchEvent(new Event("change"));
     this.#digest();
   };
 
@@ -110,6 +112,7 @@ export class Router {
     };
     this.#req = req;
     handler(req);
+    this.dispatchEvent(new Event("change"));
   }
 
   #matchRoute(

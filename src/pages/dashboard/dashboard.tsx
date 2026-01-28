@@ -1,60 +1,95 @@
 import { Fragment, h } from "preact";
-import { rx } from "../../platform/rx/rx.ts";
-import { notifyChange } from "../../platform/rx/notify-change.ts";
-import { useViewModel } from "../../platform/rx/use-view-model.ts";
+import { useAsync, useViewModel } from "../../platform/rx/use-view-model.ts";
+import { merge, Observable, of } from "../../platform/rxjs/index.ts";
+import { Decimal } from "decimal.js";
+import { useInject } from "../../platform/preact/provider.ts";
+import { DataSourceService } from "../services/data-source-service.ts";
+import { pipe } from "../../platform/rxjs/operators/pipe.ts";
+import { map } from "../../platform/rxjs/operators/map.ts";
+import {
+  convertCurrency,
+  getCurrencySymbol,
+} from "../../platform/currency/convert.ts";
+
+// TODO: Set in user settings
+const DEFAULT_CURRENCY = "AUD";
 
 class DashboardViewModel {
-  @rx accessor handle: any;
-  @rx accessor data: [number];
+  netWorth: Observable<Decimal>;
+  byCurrency: Observable<Record<string, Decimal>>;
 
-  constructor() {
-    this.data = [0];
-  }
+  constructor(ds: DataSourceService) {
+    this.netWorth = pipe(merge(of(ds), ds))(
+      map(async () => {
+        let result = new Decimal("0");
 
-  async loadJsonFile() {
-    // @ts-expect-error
-    const [handle] = await window.showOpenFilePicker({
-      types: [
-        {
-          description: "JSON Files",
-          accept: { "application/json": [".json"] },
-        },
-      ],
-    });
+        for (const account of Object.values(await ds.getAccounts())) {
+          if (account.currencyCode !== DEFAULT_CURRENCY) {
+            result = result.add(
+              await convertCurrency(
+                account.balance.toNumber(),
+                DEFAULT_CURRENCY,
+                account.currencyCode,
+              ),
+            );
+          } else {
+            result = result.add(account.balance);
+          }
+        }
 
-    const file = await handle.getFile();
-    const content = await file.text();
+        return result;
+      }),
+      map((x) => x),
+    );
 
-    const data = JSON.parse(content);
-    console.log("Your data:", data);
-    this.handle = handle;
-    this.data = data;
-  }
+    this.byCurrency = pipe(merge(of(ds), ds))(
+      map(async () => {
+        let result: Record<string, Decimal> = {};
 
-  async saveJsonFile() {
-    const writable = await this.handle.createWritable();
-    await writable.write(JSON.stringify(this.data, null, 2));
-    await writable.close();
-  }
+        for (const account of Object.values(await ds.getAccounts())) {
+          result[account.currencyCode] =
+            result[account.currencyCode] || new Decimal("0");
+          result[account.currencyCode] = result[account.currencyCode].add(
+            account.balance,
+          );
+        }
 
-  async increment() {
-    this.data[0] += 1;
-    await this.saveJsonFile();
-    notifyChange(this);
+        return result;
+      }),
+      map((x) => x),
+    );
+
+    // this.byCurrency.subscribe(x => console.log(x.USD.toNumber()))
   }
 }
 
 export function DashboardPage() {
-  const vm = useViewModel(DashboardViewModel, []);
+  const ds = useInject(DataSourceService);
+  const vm = useViewModel(DashboardViewModel, [ds]);
 
   return (
     <Fragment>
-      <div>Dashboard page</div>
-      <button onClick={() => vm.loadJsonFile()}>Load</button>
-      <button onClick={() => vm.increment()}>++</button>
-      <div>
-        <pre>{JSON.stringify(vm.data, null, 2)}</pre>
-      </div>
+      <h2>Account Totals</h2>
+      <h3>Default Currency {DEFAULT_CURRENCY}</h3>
+
+      <table>
+        {Object.entries(useAsync(vm.byCurrency, {})).map(([code, balance]) => (
+          <tr>
+            <td>
+              {getCurrencySymbol(code)}
+              {balance.toFixed(2)}
+            </td>
+            <td>{code}</td>
+          </tr>
+        ))}
+        <tr>
+          <th>
+            {getCurrencySymbol(DEFAULT_CURRENCY)}
+            {useAsync(vm.netWorth, new Decimal("0")).toFixed(2)}
+          </th>
+          <th>Estimated {DEFAULT_CURRENCY}</th>
+        </tr>
+      </table>
     </Fragment>
   );
 }

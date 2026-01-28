@@ -1,0 +1,25 @@
+@use "../../css/variables.scss" as *;
+
+body[data-route="/accounts/:id"] {
+  header {
+    h1,
+    h2 {
+      margin-bottom: $spacing-02;
+    }
+
+    h2 {
+      color: $color-green-500;
+      font-weight: 400;
+
+      small {
+        color: $color-grey-200;
+        font-weight: 400;
+        font-size: 16px;
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+  }
+}
