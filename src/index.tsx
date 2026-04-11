@@ -17,8 +17,8 @@ import { AccountsPage } from "./pages/accounts/accounts.tsx";
 
 const provider = new Provider();
 
-const dataSource = new DataSource()
-provider.provide(DataSource, dataSource)
+const dataSource = new DataSource();
+provider.provide(DataSource, dataSource);
 
 const app = new PreactRouter({
   root: document.body,
@@ -47,7 +47,7 @@ app.mount("/**", () => <NotFoundPage />);
 app.start();
 
 // @ts-expect-error
-globalThis.ds = dataSource
+globalThis.ds = dataSource;
 // @ts-expect-error
 globalThis.Decimal = Decimal;
 
@@ -100,7 +100,7 @@ void (async function () {
         date: new Date().toISOString(),
         notes: "",
         category: "",
-        credit:"50",
+        credit: "50",
         debit: null,
       },
 
@@ -113,5 +113,5 @@ void (async function () {
         debit: null,
       },
     );
-  }, 0)
+  }, 0);
 })();

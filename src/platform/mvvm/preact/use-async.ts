@@ -15,7 +15,7 @@ export function useAsync<T>(x: Observable<T>, defaultValue: T): T {
 export function usePromise<T>(
   promiseFn: () => Promise<T>,
   defaultValue: T,
-  deps: any[] = []
+  deps: any[] = [],
 ): T {
   const [value, setValue] = useState<T>(defaultValue);
   const promiseRef = useRef(promiseFn);
@@ -40,7 +40,9 @@ export function usePromise<T>(
     };
 
     execute();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, deps);
 
   return value;

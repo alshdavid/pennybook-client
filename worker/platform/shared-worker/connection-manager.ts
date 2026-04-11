@@ -11,18 +11,19 @@ export class ConnectionManager extends EventTarget {
       const port = (event as MessageEvent).ports[0];
 
       const onReady = new Promise<MessageEvent>((res) =>
-        port.addEventListener("message", res, { once: true })
+        port.addEventListener("message", res, { once: true }),
       );
 
       port.start();
       const { data: id } = await onReady;
 
-      port.postMessage(null)
+      port.postMessage(null);
       const conn = new Connection(port, id);
 
-      conn.addEventListener("disconnect",
+      conn.addEventListener(
+        "disconnect",
         () => this.#connections.delete(conn),
-        { once: true }
+        { once: true },
       );
 
       this.#connections.add(conn);
@@ -30,10 +31,7 @@ export class ConnectionManager extends EventTarget {
     });
   }
 
-
-  addEventListener(
-    ...args: Array<any>
-  ) {
+  addEventListener(...args: Array<any>) {
     /// @ts-expect-error
     return super.addEventListener(...args);
   }
@@ -42,21 +40,19 @@ export class ConnectionManager extends EventTarget {
     return this.#connections.values();
   }
 
-  postMessageAll(
-    ...args: Parameters<MessagePort['postMessage']>
-  ) {
+  postMessageAll(...args: Parameters<MessagePort["postMessage"]>) {
     for (const conn of this.#connections.values()) {
       conn.postMessage(...args);
     }
   }
 
-  onConnect(callback: (conn: Connection) => (any | Promise<any>)) {
+  onConnect(callback: (conn: Connection) => any | Promise<any>) {
     this.addEventListener("connect", ({ data: conn }: any) => {
-      callback(conn)
-    })
+      callback(conn);
+    });
   }
 
   sendAll(action: string, payload?: any): void {
-    this.postMessageAll({ action, payload })
+    this.postMessageAll({ action, payload });
   }
 }

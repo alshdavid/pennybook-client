@@ -5,8 +5,8 @@ import { useAsync } from "../../platform/mvvm/preact/use-async.ts";
 
 export function HomePage() {
   const ds = useInject(DataSource);
-  const accounts = useAsync(ds.accounts, {})
-  const transactions = useAsync(ds.transactions, {})
+  const accounts = useAsync(ds.accounts, {});
+  const transactions = useAsync(ds.transactions, {});
 
   return (
     <Fragment>

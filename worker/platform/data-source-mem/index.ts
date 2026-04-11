@@ -29,8 +29,10 @@ export class DataSourceMemory implements IDataSource {
     );
   }
 
-  async getAllTransactions(): Promise<Record<TransactionId, TransactionDetail>> {
-    return structuredClone(this.#state.transactions)
+  async getAllTransactions(): Promise<
+    Record<TransactionId, TransactionDetail>
+  > {
+    return structuredClone(this.#state.transactions);
   }
 
   async getAccounts(): Promise<Record<string, AccountDetail>> {
@@ -150,5 +152,6 @@ function calculateBalance(
         return balance.minus(new Decimal(transaction.debit));
       }
       return balance;
-    }, new Decimal(0)).toString();
+    }, new Decimal(0))
+    .toString();
 }

@@ -33,7 +33,6 @@ export function getCurrencySymbol(currencyCode: string): string | undefined {
   }[currencyCode];
 }
 
-
 // async function fetchCurrency(code: string): Promise<Record<string, number>> {
 //   const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${code.toLowerCase()}.json`;
 //   const response = await fetch(url);
@@ -50,12 +49,14 @@ const currencyCache = new Map<string, CacheEntry>();
 const inflightRequests = new Map<string, Promise<Record<string, number>>>();
 const CACHE_DURATION = 30 * 60 * 1000;
 
-async function fetchCurrencyCached(code: string): Promise<Record<string, number>> {
+async function fetchCurrencyCached(
+  code: string,
+): Promise<Record<string, number>> {
   const lowerCode = code.toLowerCase();
   const now = Date.now();
 
   const cached = currencyCache.get(lowerCode);
-  if (cached && (now - cached.timestamp < CACHE_DURATION)) {
+  if (cached && now - cached.timestamp < CACHE_DURATION) {
     return cached.data;
   }
 
@@ -68,7 +69,8 @@ async function fetchCurrencyCached(code: string): Promise<Record<string, number>
     try {
       const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${lowerCode}.json`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
       const result = data[lowerCode];
