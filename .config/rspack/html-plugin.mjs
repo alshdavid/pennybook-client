@@ -45,44 +45,6 @@ export class HtmlPlugin extends HtmlWebpackPlugin {
             };
           });
 
-          // Generate Import Map
-          const stat = compilation.getStats().toJson({
-            all: false,
-            assets: true,
-            cachedAssets: true,
-            ids: true,
-            publicPath: true,
-          });
-
-          const importMap = { imports: {} };
-          for (const [entry, assets] of Object.entries(
-            stat.assetsByChunkName,
-          )) {
-            importMap.imports[entry] = `./${assets[0]}`;
-          }
-
-          // Rspack shims `import.meta.resolve()` so this is a work around
-          data.assetTags.scripts.unshift({
-            attributes: {
-              type: "module",
-            },
-            tagName: "script",
-            innerHTML:
-              "globalThis.importMap = { resolve: (...args) => import.meta.resolve(...args) }",
-            voidTag: false,
-            meta: {},
-          });
-
-          data.assetTags.scripts.unshift({
-            attributes: {
-              type: "importmap",
-            },
-            tagName: "script",
-            innerHTML: JSON.stringify(importMap),
-            voidTag: false,
-            meta: {},
-          });
-
           // Base Href
           if (this.options.baseHref) {
             data.assetTags.scripts.unshift({

@@ -1,58 +1,33 @@
 import "./account-detail.scss";
 import { Fragment, h } from "preact";
-import { useAsync, useViewModel } from "../../platform/rx/use-view-model.ts";
 import { useInject } from "../../platform/preact/provider.ts";
-import { DataSourceService } from "../services/data-source-service.ts";
-import { PreactRouter, useRouter } from "../../platform/router/preact.tsx";
-import {
-  AccountDetail,
-  TransactionDetail,
-} from "../../platform/data-source/index.ts";
-import { pipe } from "../../platform/rxjs/operators/pipe.ts";
-import { map } from "../../platform/rxjs/operators/map.ts";
-import { fromEvent, merge, Observable, of } from "../../platform/rxjs/index.ts";
-
-export class AccountsDetailPageViewModel {
-  id: Observable<string>;
-  transactions: Observable<Array<TransactionDetail>>;
-  account: Observable<AccountDetail>;
-
-  constructor(router: PreactRouter, ds: DataSourceService) {
-    this.id = merge(
-      of(router.req.params.id),
-      pipe(fromEvent(router, "change"))(map(() => router.req.params.id)),
-    );
-
-    this.account = pipe(merge(this.id, ds))(
-      map(async () => (await ds.getAccounts())[router.req.params.id]),
-      map((x) => x),
-    );
-
-    this.transactions = pipe(merge(of(router.req.params.id), this.id, ds))(
-      map(
-        async () =>
-          (await ds.getTransactions(router.req.params.id).next()).value,
-      ),
-      map((x) => x),
-    );
-  }
-}
+import { useRouter } from "../../platform/router/preact.tsx";
+import { fromEvent, map, merge, of } from "rxjs";
+import { DataSource } from "../../platform/data-source/data-source.ts";
+import { useAsync } from "../../platform/mvvm/preact/use-async.ts";
 
 export function AccountsDetailPage() {
   const router = useRouter();
-  const dataSourceService = useInject(DataSourceService);
-  const vm = useViewModel(AccountsDetailPageViewModel, [
-    router,
-    dataSourceService,
-  ]);
+  const ds = useInject(DataSource);
+  const accounts = useAsync(ds.accounts, {});
+  const transactions = useAsync(ds.transactions, {});
+
+  const id = useAsync(
+    merge(
+      of(router.req.params.id),
+      fromEvent(router, "change").pipe(map(() => router.req.params.id)),
+    ),
+    router.req.params.id,
+  );
+
+  const account = accounts[id];
 
   return (
     <Fragment>
       <header>
-        <h1>{useAsync(vm.account, null)?.name} </h1>
+        <h1>{account?.name} </h1>
         <h2>
-          ${useAsync(vm.account, null)?.balance.toFixed(2)}{" "}
-          <small>{useAsync(vm.account, null)?.currencyCode}</small>
+          ${account?.balance} <small>{account?.currencyCode}</small>
         </h2>
       </header>
       <table>
@@ -67,16 +42,18 @@ export function AccountsDetailPage() {
           </tr>
         </thead>
         <tbody>
-          {useAsync(vm.transactions, []).map((t) => (
-            <tr>
-              <td scope="col">{t.date}</td>
-              <td scope="col"></td>
-              <td scope="col">{t.notes}</td>
-              <td scope="col">{t.category}</td>
-              <td scope="col">{t.debit?.toFixed(2)}</td>
-              <td scope="col">{t.credit?.toFixed(2)}</td>
-            </tr>
-          ))}
+          {Object.values(transactions)
+            .filter((tx) => tx.accountId === id)
+            .map((tx) => (
+              <tr>
+                <td scope="col">{tx.date}</td>
+                <td scope="col"></td>
+                <td scope="col">{tx.notes}</td>
+                <td scope="col">{tx.category}</td>
+                <td scope="col">{tx.debit}</td>
+                <td scope="col">{tx.credit}</td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </Fragment>

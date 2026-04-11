@@ -13,6 +13,81 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Pennybook</title>
+    <script type="module">
+      globalThis.pbWorker = new (class extends EventTarget {
+        #port;
+        #onReady;
+        #listeners;
+        #pending;
+
+        constructor(...args) {
+          super();
+          this.#listeners = new Map()
+          this.#pending = new Map()
+
+          const id = crypto.randomUUID();
+          const worker = new globalThis.SharedWorker(...args);
+          this.#onReady = new Promise((res) =>
+            worker.port.addEventListener("message", res, { once: true }),
+          );
+          navigator.locks.request(id, async (_lock) => {
+            worker.port.postMessage(id);
+            worker.port.start();
+            // Never resolve to hold the lock until page close
+            await new Promise(() => {});
+          });
+          this.#port = worker.port;
+          this.addEventListener('message', this.#defaultListener)
+        }
+
+        #defaultListener = ({data}) => {
+          const { id, action, payload } = data
+          if (id) {
+            const done = this.#pending.get(id)
+            if (!done) throw new Error("Failed to get response")
+            this.#pending.delete(id)
+            const [res, rej] = done
+            if (payload.error) {
+              rej(payload.error)
+            } else {
+              res(payload.response)
+            }
+          } else {
+            const listeners = this.#listeners.get(action) || new Set();
+            for (const listener of listeners.values()) listener(payload)
+          }
+        }
+
+        postMessage(...args) {
+          this.#onReady.then(() => this.#port.postMessage(...args));
+        }
+        addEventListener(...args) {
+          this.#onReady.then(() => this.#port.addEventListener(...args));
+        }
+        removeEventListener(...args) {
+          this.#onReady.then(() => this.#port.removeEventListener(...args));
+        }
+
+        send(action, payload) {
+          const id = crypto.randomUUID()
+          const done = new Promise((res, rej) => this.#pending.set(id, [res, rej]))
+          this.postMessage({ id, action, payload })
+          return done
+        }
+        subscribe(action, callback) {
+          const listeners = this.#listeners.get(action) || new Set();
+          listeners.add(callback)
+          this.#listeners.set(action, listeners)
+          return () => listeners.delete(callback)
+        }
+      })("/worker.js", { type: "module", name: "pennybook-shared-worker"})
+
+      globalThis.pbWorker.addEventListener('message', ({ data }) => {
+        if (data.action === 'log') console.log(...data.payload.args)
+        if (data.action === 'info') console.info(...data.payload.args)
+        if (data.action === 'warn') console.warn(...data.payload.args)
+      })
+    </script>
   </head>
   <body></body>
 </html>

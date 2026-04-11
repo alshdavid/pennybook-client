@@ -3,7 +3,7 @@
     "target": "ESNext",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["DOM", "ESNext"],
+    "lib": ["DOM", "ESNext", "ESNext.AsyncIterable", "ESNext.Array"],
     "strict": true,
     "noEmit": true,
     "experimentalDecorators": false,
@@ -14,9 +14,10 @@
     "jsx": "react",
     "jsxFactory": "h",
     "types": [
-      "./.config/typings/import-map.d.ts"
+      "./.config/typings/pb-worker.d.ts",
+      "./.config/typings/modules.d.ts",
     ]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "worker/**/*"],
   "exclude": ["src/**/*.test.ts"]
 }
